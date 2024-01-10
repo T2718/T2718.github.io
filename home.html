@@ -22,7 +22,7 @@
       <a href="/Login/log.html">LogIN</a>
     </center>
     <script>
-      document.cookie = "count=1";
+      //document.cookie = "count=1";
       let cookie_dict = {};
       if(document.cookie != ""){
         const cookies = document.cookie.split(';');
@@ -31,7 +31,7 @@
           k = cookie.split('=');
           cookie_dict[k[0]] = k[1];
         });
-        if('count' in Object.keys(cookie_dict)){
+        if('count' in cookie_dict){
           document.cookie = "count="+String(Number(cookie_dict.count)+1);
         };
       } else {
