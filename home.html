@@ -24,7 +24,7 @@
     <script>
       //document.cookie = "count=1";
       let cookie_dict = {};
-      if(document.cookie != ""){
+      if(!document.cookie == ""){
         const cookies = document.cookie.split(';');
         cookies.foreach(function(cookie){
           let k;
