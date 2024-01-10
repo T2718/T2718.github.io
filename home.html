@@ -24,13 +24,14 @@
     <script>
       //document.cookie = "count=1";
       let cookie_dict = {};
+      alert(document.cookie);
       if(!document.cookie == ""){
         const cookies = document.cookie.split(';');
         cookies.foreach(function(cookie){
-          let k;
-          k = cookie.split('=');
+          let k = cookie.split('=');
           cookie_dict[k[0]] = k[1];
         });
+        alert('hey'+cookie_dict);
         if('count' in cookie_dict){
           document.cookie = "count="+String(Number(cookie_dict.count)+1);
         };
