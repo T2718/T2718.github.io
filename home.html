@@ -8,7 +8,7 @@
     <title>HOME</title>
     <style>
       html,body {
-        background-color: #000000;
+        background-color: #7fffd4;
       }
       .Title {
         text-align: center;
@@ -22,8 +22,18 @@
       <a href="/Login/log.html">LogIN</a>
     </center>
     <script>
+      document.cookie = "count=1";
+      let cookie_dict = {};
       if(document.cookie != ""){
-        document.cookie = "count=1";
+        const cookies = document.cookie.split(';');
+        cookies.foreach(function(cookie){
+          let k;
+          k = cookie.split('=');
+          cookie_dict[k[0]] = k[1];
+        });
+        if('count' in Object.keys(cookie_dict)){
+          document.cookie = "count="+String(Number(cookie_dict.count)+1);
+        };
       } else {
         document.cookie = "count=1";
       }
