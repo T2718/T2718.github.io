@@ -1,4 +1,5 @@
-window.addEventListener('DOMContentLoaded', init);
+//window.addEventListener('DOMContentLoaded', init);
+init();
 
 function init() {
   alert('Hello!');
