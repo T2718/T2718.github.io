@@ -1,9 +1,9 @@
-alert('Hey');
+//alert('Hey');
 window.addEventListener('DOMContentLoaded', init);
 //init();
 
 function init() {
-  alert('Hello!');
+  //alert('Hello!');
   
   const height = window.innerHeight;
   const width = window.innerWidth;
@@ -115,7 +115,7 @@ function init() {
         }
       }
       //alert('Hey');
-      document.getElementById('info').innerHTML = '('+String(camerawork.position.x)+','+String(camerawork.position.y)+','+String(camerawork.position.z)+')<br>'+String(theta+camera_theta);
+      document.getElementById('info').innerHTML = String(theta-theta_y);
     }
     //box.position.x = 100*Math.sin(Date.now()/1000);
     //scene.add(box);
