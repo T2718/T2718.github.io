@@ -1,20 +1,43 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
-    <script src="three_me.js"></script>
-    <title>Athletic</title>
-    <style>
-      html,body {
-        background-color: #7fffd4;
-        user-select: none;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="myCanvas"></canvas>
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>replit</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
+  <script src="script.js"></script>
+  <style>
+    body,html,#canvas {
+      position: fixed;
+      margin: 0;
+      user-select: none;
+      -webkit-user-select:none;
+      overflow: hidden;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      margin: 20px;
+      z-index: 100;
+      font-size: 50px;
+      display:block;
+    }
+  </style>
+  
+</head>
+
+<body>
+  <div id="info" style="color:#ff0000;">Hey</div>
+  <canvas id="myCanvas"></canvas>
+
+  <!--
+  This script places a badge on your repl's full-browser view back to your repl's cover
+  page. Try various colors for the theme: dark, light, red, orange, yellow, lime, green,
+  teal, blue, blurple, magenta, pink!
+  -->
+ 
+</body>
+
 </html>
