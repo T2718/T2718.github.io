@@ -100,7 +100,7 @@ function init() {
         camerawork.position.set(camera.position.x-move_x,camera.position.y-move_y,camera.position.z-move_z);
       } else {
         if(-20<x-x0<20 && -20<y-y0<20){
-          theta_y -= y_reverse*(x-x0)/30000;
+          theta_y -= (y_reverse*(x-x0)/30000)%(2*Math.PI);
           //const work_x = 10*Math.cos(Math.acos((camera.position.x-camerawork.position.x)/10)-(x-x0)/30000)
           const work_x = 10*Math.sin(theta_y);
           //const work_y = 0*camerawork.position.y;
@@ -115,7 +115,7 @@ function init() {
         }
       }
       //alert('Hey');
-      document.getElementById('info').innerHTML = String(theta-theta_y);
+      document.getElementById('info').innerHTML = String(180*((theta-theta_y)%(2*Math.PI))/Math.PI);
     }
     //box.position.x = 100*Math.sin(Date.now()/1000);
     //scene.add(box);
