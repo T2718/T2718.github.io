@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
-  
+  alert('Hello!');
   
   const height = window.innerHeight;
   const width = window.innerWidth;
