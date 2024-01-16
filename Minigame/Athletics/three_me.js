@@ -64,7 +64,7 @@ function init() {
   const camerawork = new THREE.Mesh(geometry_camerawork,material_camerawork);
   scene.add(camerawork);
 
-  const loader = new GLTFLoader();
+  const loader = new THREE.GLTFLoader();
   // GLTFファイルのパスを指定
   const gltf = await loader.loadAsync('./Test01.glb');
   // 読み込み後に3D空間に追加
