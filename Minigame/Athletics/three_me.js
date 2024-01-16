@@ -64,12 +64,12 @@ function init() {
   const camerawork = new THREE.Mesh(geometry_camerawork,material_camerawork);
   scene.add(camerawork);
 
-  const loader = new THREE.GLTFLoader();
+  /*const loader = new THREE.GLTFLoader();
   // GLTFファイルのパスを指定
   const gltf = await loader.loadAsync('./Test01.glb');
   // 読み込み後に3D空間に追加
   const mycar = gltf.scene;
-  scene.add(mycar);
+  scene.add(mycar);*/
   
   cube.position.z = 1000;
   cube.position.y = -50;
@@ -108,7 +108,7 @@ function init() {
         const move_z = camera.position.z - camerawork.position.z;
         camera.position.x += v*Math.cos(theta - theta_y);
         camera.position.z += v*Math.sin(theta - theta_y);
-        mycar.position.set(camera.position.x,camera.position.y-h,camera.position.z);
+        /*mycar.position.set(camera.position.x,camera.position.y-h,camera.position.z);*/
         camerawork.position.set(camera.position.x-move_x,camera.position.y-move_y,camera.position.z-move_z);
       } else {
         if(-20<x-x0<20 && -20<y-y0<20){
