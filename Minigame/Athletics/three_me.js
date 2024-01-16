@@ -24,11 +24,14 @@ function init() {
   let y = null;
   let y_reverse = 1;
   let x_reverse = 1;
+  //タッチしていない時
+  let No_touch = true;
   //ジャンプしているか
   let jump_tf = false;
   let theta_y = 0;
   let v = 0;
-  let v_how = 100;
+  let v_how = 50000;
+  let camera_how = 30000;
   let theta = 0;
   let camera_theta = 0;
 
@@ -64,12 +67,11 @@ function init() {
   const camerawork = new THREE.Mesh(geometry_camerawork,material_camerawork);
   scene.add(camerawork);
 
-  /*const loader = new THREE.GLTFLoader();
-  // GLTFファイルのパスを指定
-  const gltf = await loader.loadAsync('./Test01.glb');
-  // 読み込み後に3D空間に追加
-  const mycar = gltf.scene;
-  scene.add(mycar);*/
+  const geometry_camerafoot = new THREE.BoxGeometry(1,1,3);
+  const material_camerafoot = new THREE.MeshBasicMaterial({color:00FFFF});
+  const camerafoot = new THREE.Mesh(geometry_camerafoor,material_camerafoot);
+  scene.add(camerafoot);
+  
   
   cube.position.z = 1000;
   cube.position.y = -50;
@@ -112,22 +114,22 @@ function init() {
         camerawork.position.set(camera.position.x-move_x,camera.position.y-move_y,camera.position.z-move_z);
       } else {
         if(-20<x-x0<20 && -20<y-y0<20){
-          theta_y -= (y_reverse*(x-x0)/30000)%(2*Math.PI);
-          //const work_x = 10*Math.cos(Math.acos((camera.position.x-camerawork.position.x)/10)-(x-x0)/30000)
+          theta_y -= (y_reverse*(x-x0)/camera_how)%(2*Math.PI);
           const work_x = 10*Math.sin(theta_y);
-          //const work_y = 0*camerawork.position.y;
-          const work_y = 10*Math.sin(Math.asin((camera.position.y-camerawork.position.y)/10)+x_reverse*(y-y0)/30000);
+          const work_y = 10*Math.sin(Math.asin((camera.position.y-camerawork.position.y)/10)+x_reverse*(y-y0)/camera_how);
           const work_z = 10*Math.cos(theta_y);
           camerawork.position.set(camera.position.x-work_x,camera.position.y-work_y,camera.position.z-work_z);
           
           camera.lookAt(new THREE.Vector3(camerawork.position.x,camerawork.position.y,camerawork.position.z));
-          //camera.rotation.x += 1;
           renderer.render(scene,camera);
          
         }
       }
       //alert('Hey');
       document.getElementById('info').innerHTML = String(180*((theta-theta_y)%(2*Math.PI))/Math.PI);
+    }
+    if (No_touch == true){
+      v -= 100;
     }
     //box.position.x = 100*Math.sin(Date.now()/1000);
     //scene.add(box);
@@ -169,6 +171,7 @@ function init() {
       y0 = e.clientY;
 
     }
+    No_touch = false;
   }
   function touch_move(e){
     if (e.touches && e.touches[0]) {
@@ -183,7 +186,10 @@ function init() {
       y = e.clientY;
 
     }
-    v = Math.sqrt((x-x0)**2+(y-y0)**2)/v_how;
+    v += Math.sqrt((x-x0)**2+(y-y0)**2)/v_how;
+    if(v >= 350){
+      v = 350; 
+    }
     theta = Math.atan2(y-y0,x-x0);
   }
   function touch_end(e){
@@ -194,6 +200,7 @@ function init() {
     y0 = null;
     x = null;
     y = null;
+    No_touch = true;
   }
   
   window.addEventListener('touchstart', touch_start);
