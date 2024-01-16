@@ -1,5 +1,5 @@
 //alert('Hey');
-import { GLTFLoader } from "https://threejs.org/examples/jsm/loaders/GLTFLoader.js";
+
 window.addEventListener('DOMContentLoaded', init);
 document.addEventListener("gesturestart", (e) => {
   e.preventDefault();
