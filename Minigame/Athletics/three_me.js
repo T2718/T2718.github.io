@@ -1,5 +1,8 @@
 //alert('Hey');
 window.addEventListener('DOMContentLoaded', init);
+document.addEventListener("gesturestart", (e) => {
+  e.preventDefault();
+});
 //init();
 
 function init() {
