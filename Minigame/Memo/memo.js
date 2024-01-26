@@ -7,11 +7,10 @@ let y = 100;
 let r = 3;
 let color = [255,0,0,r];
 let line_list = [[[]]];
-window.addEventListener("beforeunload", (event) => {
-  
+window.sessionStorage.setItem('Memo/line_list', JSON.stringify(line_list));
+setInterval(()=>{
   window.sessionStorage.setItem('Memo/line_list', JSON.stringify(line_list));
-  event.returnValue = "ページから離れようとしています。";
-});
+},6000);
 const session_Storage = window.sessionStorage.getItem('Memo/line_list');
 alert(session_Storage);
 if(sesson_Storage != null) line_list = window.sessionStorage.getItem('Memo/line_list');
