@@ -60,7 +60,7 @@ let touch_tf = true;
 
 for(let k = 0; k < height_n1+5; k++){
   block1.push([]);
-  for(let k1 = 0; k1 < width_n1+1; k1++){
+  for(let k1 = 0; k1 < width_n1; k1++){
     block1[k].push(0);
   }
 }
@@ -437,9 +437,9 @@ function mino_draw(){
     rect(left1+r1+r1*Amino.list[k][0],up1+r1*(height_n1-Amino.list[k][1]-1),r1,r1);
   }
   //console.log(floor1[0][0] == 0);
-  for(let k = 0; k < floor1.length-1; k++){
+  for(let k = 0; k < floor1.length; k++){
     //console.log(k)
-    for(let k1 = 0; k1 < floor1[k].length-1; k1++){
+    for(let k1 = 0; k1 < floor1[k].length; k1++){
       //console.log(floor1[k][k1] == 0);
       if(floor1[k][k1] == 0) continue;
       //console.log('Floor1');
