@@ -1,3 +1,6 @@
+//alert('hey');
+
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 
@@ -536,14 +539,16 @@ function delete_line(){
   for(let k = floor1.length-1; k >= 0; k--){
     //console.log(floor1[k].indexOf(0) >= 6);
     //text1 = [floor1[k].indexOf(0)]
-    if(floor1[k].indexOf(0) == 10){
+    //print(floor1[k])
+    //console.log(floor1[k].indexOf(0))
+    if(floor1[k].indexOf(0) == -1){
       //alert('full');
       //console.log('full');
       line_k.push(k);
     }
   }
   let k_empty = [];
-  for(let k0 = 0; k0 < width_n1+1; k0++){
+  for(let k0 = 0; k0 < width_n1; k0++){
     k_empty.push(0);
   }
   for(k of line_k){
