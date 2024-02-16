@@ -4,8 +4,8 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const T_one_base = 0.3;
-let T_one = 0.3;
+const T_one_base = 0.01;
+let T_one = 0.01;
 
 //const left1 = (width-60)/3+30;
 const left1 = (width-250)/2
@@ -29,16 +29,17 @@ const fr = 30;
 let text1 = '';
 let Timer = 0;
 let Time_run = false;
-let on_time = 0.7;
-let srs = {T:[[0,0],[0,1]],I:[[0,0],[0,2]],L:[[0,0]],J:[[0,0]],S:[[0,2]],Z:[[0,0]]};
+let on_time = 0.5;
+let srs = {T:[[0,0]],I:[[0,0]],L:[[0,0]],J:[[0,0]],S:[[0,0]],Z:[[0,0]]};
 let delete_line_num = 0;
 let next_mino_list = [];
 let T_one_multi = 4;
 let hold = '';
 let hold_list = {};
 let hold_tf = false;
-const next_num = 3;
+const next_num = 5;
 let fast = [[]];
+let wait_put = 15;
 
 
 function next_in(){
@@ -105,7 +106,15 @@ function fall_fin(){
   }
   return false;
 }
+
+
+
+
+
+
+
 // 現在の実行内容を決定する
+//初期位置を設定
 function when(){
   //alert(first_tf1);
   //alert('hey')
@@ -127,6 +136,10 @@ function when(){
   if(state1 == 'None'){
     //console.log('null');
     state1 = 'first';
+    //console.log(mino_list1[0])
+    Amino.x = Math.floor(width_n1/2)-1;
+    if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
+    Amino.y = height_n1-3;
     return
   }
   if(state1 == 'fall'){
@@ -146,9 +159,12 @@ function when(){
         //floor1 = [[[255,0,0],0],[[255,255,0],0]];
         //console.log('Fin');
         //console.log(floor1[k[1]]);
-        
+
+        //console.log(mino_list1[0])
         Amino.x = Math.floor(width_n1/2)-1;
+        if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
         Amino.y = height_n1-3;
+        
         //if(Amino.kind == 'I') Amino.y = height_n1-3;
         //last_k += 1;
       }
@@ -493,7 +509,7 @@ function onemino_draw(kind_k2,x_k2,y_k2){
   
   fill(dict_k2.color[0],dict_k2.color[1],dict_k2.color[2]);
   for(let k = 0; k < dict_k2.list_base.length;k++){
-    rect(x_k2+r1*dict_k2.list_base[k][0],y_k2+r1*4-r1*dict_k2.list_base[k][1],r1,r1);
+    rect(x_k2+r1*dict_k2.list_base[k][0],y_k2+4*r1-r1*dict_k2.list_base[k][1],r1,r1);
   }
   //console.log(dict_k2);
 }
@@ -509,7 +525,7 @@ function hold_draw(){
 function next_draw(){
   for(let k = 0; k < next_num; k++){
     //console.log('hey');
-    onemino_draw(mino_list1[k],left1+r1*(width_n1+3)+r1,up1+r1*5*k);
+    onemino_draw(mino_list1[k],left1+r1*(width_n1+3)+r1,up1+r1*4*k);
   }
 }
 
@@ -537,13 +553,7 @@ let first_tf1 = true;
 function delete_line(){
   let line_k = [];
   for(let k = floor1.length-1; k >= 0; k--){
-    //console.log(floor1[k].indexOf(0) >= 6);
-    //text1 = [floor1[k].indexOf(0)]
-    //print(floor1[k])
-    //console.log(floor1[k].indexOf(0))
     if(floor1[k].indexOf(0) == -1){
-      //alert('full');
-      //console.log('full');
       line_k.push(k);
     }
   }
@@ -564,8 +574,6 @@ function put_tf(){
   let k_tf = false;
   //if(now_mino1 == 'T') time_middle = 0;
   for(k of Amino.list){
-    //console.log(k);
-    //if() return true;
     
     //下がブロックの場合
     if(k[1]-3 < 0 || floor1[k[1]-3][k[0]] != 0){
@@ -593,7 +601,12 @@ function hold_func(){
   if(hold_tf){
     return;
   }
+  
   hold_tf = true;
+
+  Amino.x = Math.floor(width_n1/2)-1;
+  if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
+  Amino.y = height_n1-3;
   let hold_k = hold;
   if(hold == ''){
     hold_first_tf = true;
@@ -610,10 +623,52 @@ function hold_func(){
   state1 = 'first';
 }
 
+let finish_tf = false;
+
+//終了を判定
+function finish_check(){
+  /*if(finish_tf){
+    Time_run = false;
+    return;
+  }*/
+  if(state1 == 'first'){
+
+    //終了
+    if(first_fall_tf){
+      //Time_run = false;
+      //console.log(finish_tf)
+      finish_tf = true;
+      
+      alert('finish')
+      noLoop();
+    } else {
+      first_fall_tf = true;
+    }
+
+  }
+  if(state1 == 'fall'){
+    first_fall_tf = false;
+  }
+}
+
+// 終了後の実行
+function finish_after_func(){
+  if(finish_tf){
+    textSize(50);
+    fill(255,255,255);
+    textAlign(CENTER);
+    text('Finish!!\n'+String(delete_line_num),width/2,height/2)
+  }
+}
+
+
+let first_fall_tf = false;
+
 function draw(){
   background(20,20,70);
   strokeWeight(3);
-  textSize(20);
+  textSize(40);
+  fill(255,255,255)
   text(String(delete_line_num),100,120)
   //text(String(text1), 100, 80);
   
@@ -626,9 +681,12 @@ function draw(){
   delete_line();
   hold_draw();
   next_draw();
+  finish_check();
+  
+
   //list_draw();
   
-  
+
   
   
   //mino_move();
@@ -647,9 +705,7 @@ function draw(){
 
           next_mino_list.push(k_list1.splice(Math.floor(k*Math.random()),1)[0]);
         }
-        //alert(mino_list1);
-        //console.log(mino_list1);
-        //alert(mino_list1);
+        
       }
       mino_list1.push(next_mino_list.shift());
       
@@ -679,6 +735,8 @@ function draw(){
   if(Time_run == true) Timer += 1;
   //button_draw();
   T_one = T_one_base;
+
+  finish_after_func();
 }
 
 let touch1 = {x:[],y:[]};
@@ -711,9 +769,7 @@ function touchMoved(){
     if((-1 >= k_x || k_x >= width_n1)){
       k_tf = false;
     }
-    //if(k_x < 0 || k_x > width_n1 || Amino.y <=1) k_tf = false;
-      /*console.log(k)
-      console.log(Amino.list.length);*/
+   
     if(Math.abs(k_x-Amino.list[k][0])>1) k_tf = false;
     if(floor1[k_y-2][k_x] != 0) k_tf = false;
   }
