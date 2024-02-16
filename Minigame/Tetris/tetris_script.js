@@ -419,6 +419,11 @@ function mino_list_get(kind_k,dir_k0){
 // ミノを配置
 function set_mino(){
   //now_mino1 = 'T';
+  if(hole_tf){
+    Amino.x = Math.floor(width_n1/2)-1;
+    if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
+    Amino.y = height_n1-3;
+  }
   Amino.predir = 'N';
   Amino.dir = 'N';
   Amino.kind = now_mino1;
@@ -725,7 +730,7 @@ function draw(){
   if(touch2.y[0]-touch1.y[0] >= 70){
     //console.log(touch1.y[0]);
     T_one *= 1/T_one_multi;
-  } else if(touch1.y[0]-touch2.y[0] >= 70){
+  } else if(touch1.y[0]-touch2.y[0] >= 100){
     hold_func();
   }
   if(Timer > fr*T_one && put_tf()){
