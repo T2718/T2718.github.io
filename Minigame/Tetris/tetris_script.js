@@ -4,7 +4,7 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-let T_one_base = 0.5;
+const T_one_base = 0.5;
 let T_one = 0.5;
 
 //const left1 = (width-60)/3+30;
@@ -40,6 +40,14 @@ let hold_tf = false;
 const next_num = 5;
 let fast = [[]];
 let wait_put = 15;
+let min_mino = 100;
+let touch1 = {x:[],y:[]};
+let n1 = 0;
+let prex1 = 0;
+let prey1 = 0;
+let now_x = 0;
+let move_x = false;
+let hold_tf_first = true;
 
 
 function next_in(){
@@ -136,6 +144,8 @@ function when(){
   if(state1 == 'None'){
     //console.log('null');
     state1 = 'first';
+    min_mino = 100;
+    wait_put = 15;
     //console.log(mino_list1[0])
     Amino.x = Math.floor(width_n1/2)-1;
     if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
@@ -147,7 +157,8 @@ function when(){
     // 地面についたか
   
     if(fall_fin()){
-      
+      min_mino = 100;
+      wait_put = 15;
       put_tf1 = false;
       hold_tf = false;
       state1 = 'first';
@@ -381,10 +392,7 @@ function mino_list_get(kind_k,dir_k0){
       //k_list = rotation_is(kind_k,dir_k0,);
       
       text1 = ['K',n_k0,dir_k0,Amino.predir,k_list]
-      if(kind_k == 'T'){
-        console.log(srs_k[k]);
-        //text1 = k_list;
-      }
+      
       if(k_list[1] == true){
         Amino.x += srs_k[k][0];
         Amino.y += srs_k[k][1];
@@ -401,6 +409,7 @@ function mino_list_get(kind_k,dir_k0){
   
   if(k_list[1]){
     //console.log('hey'+"true");
+    wait_put -= 1;
     list_k = rotate(k_list[0]);
     time_middle = 0;
   } else {
@@ -419,7 +428,7 @@ function mino_list_get(kind_k,dir_k0){
 // ミノを配置
 function set_mino(){
   //now_mino1 = 'T';
-  if(hole_tf){
+  if(hold_tf_first){
     Amino.x = Math.floor(width_n1/2)-1;
     if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
     Amino.y = height_n1-3;
@@ -573,8 +582,9 @@ function delete_line(){
   }
 }
 
-//let Put_tf = true;
+//time_middleはontimeを使うために用いる
 function put_tf(){
+
   //hold_tf = false;
   let k_tf = false;
   //if(now_mino1 == 'T') time_middle = 0;
@@ -582,13 +592,15 @@ function put_tf(){
     
     //下がブロックの場合
     if(k[1]-3 < 0 || floor1[k[1]-3][k[0]] != 0){
+      if(wait_put <= 0) return true;
       k_tf = true;
-      if(time_middle == 0){
+      if(time_middle == 0 || move_x){
         time_middle = new Date().getTime();
       }
     }
   }
   if(k_tf == false){
+    Timer = 0;
     time_middle = 0;
   } else if(new Date().getTime()-time_middle <= 1000*on_time){
     return false;
@@ -608,10 +620,14 @@ function hold_func(){
   }
   
   hold_tf = true;
+  hold_tf_first = true;
 
   Amino.x = Math.floor(width_n1/2)-1;
   if(mino_list1[0] == 'I') Amino.x = Math.floor(width_n1/2);
   Amino.y = height_n1-3;
+  //alert('hold')
+
+  
   let hold_k = hold;
   if(hold == ''){
     hold_first_tf = true;
@@ -675,6 +691,8 @@ function draw(){
   textSize(40);
   fill(255,255,255)
   text(String(delete_line_num),100,120)
+  //text(String(wait_put),100,120)
+
   //text(String(text1), 100, 80);
   
   strokeWeight(2);
@@ -687,12 +705,15 @@ function draw(){
   hold_draw();
   next_draw();
   finish_check();
-  
+  if(min_mino > Amino.y){
+    min_mino = Amino.y;
+    wait_put = 15;
 
+  }
+  
   //list_draw();
   
-  //Timeを設定
-  T_one_base = 0.5/(delete_line_num+1);
+
   
   
   //mino_move();
@@ -727,6 +748,7 @@ function draw(){
   mino_draw();
 
   //Time_end = new Date().getTime();
+  hold_tf_first = false;
   if(touch2.y[0]-touch1.y[0] >= 70){
     //console.log(touch1.y[0]);
     T_one *= 1/T_one_multi;
@@ -745,10 +767,7 @@ function draw(){
   finish_after_func();
 }
 
-let touch1 = {x:[],y:[]};
-let n1 = 0;
-let prex1 = 0;
-let prey1 = 0;
+
 function touchStarted(){
   Time_run = true;
   touch_tf = true;
@@ -765,22 +784,51 @@ function touchMoved(){
   n1 += 1;
 
   let k_tf = true;
+  now_x = Amino.x;
   
   //text1 = [];
   touch2 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y)};
   for (let k = 0; k < Amino.list.length; k ++){
-    k_x = prex1+Amino.list_base[k][0] + Math.floor(2.5*width_n1*(touches[0].x-touch1.x[0])/width);
+    k_x = prex1+Amino.list_base[k][0] + Math.floor(2.5*width_n1*(touch2.x[0]-touch1.x[0])/width);
     k_y = Amino.list[k][1];
     //text1.push(k_x);
     if((-1 >= k_x || k_x >= width_n1)){
       k_tf = false;
+      //console.log(1);
+
     }
    
-    if(Math.abs(k_x-Amino.list[k][0])>1) k_tf = false;
-    if(floor1[k_y-2][k_x] != 0) k_tf = false;
+    /*if(Math.abs(k_x-Amino.list[k][0])>1){
+      k_tf = false;
+      console.log(2);
+
+    }*/
+    //k_y-2から
+    if(floor1.length+1 < k_y){
+      k_tf = false;
+      //console.log(3);
+
+      continue
+
+    }
+
+
+    
+
+    if(floor1[k_y-2][k_x] != 0){
+      k_tf = false;
+      //console.log(4)
+
+    }
+
   }
-  if(k_tf) Amino.x = prex1 + Math.floor(2.5*width_n1*(touches[0].x-touch1.x[0])/width);
+  console.log(k_tf)
+  if(k_tf) Amino.x = prex1 + Math.floor(2.5*width_n1*(touch2.x[0]-touch1.x[0])/width);
   //text1 = 
+  move_x = (Amino.x != now_x);
+  if(move_x){
+    wait_put -= 1;
+  }
 }
 
 end = true;
