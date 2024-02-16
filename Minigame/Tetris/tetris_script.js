@@ -4,8 +4,8 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const T_one_base = 0.01;
-let T_one = 0.01;
+let T_one_base = 0.5;
+let T_one = 0.5;
 
 //const left1 = (width-60)/3+30;
 const left1 = (width-250)/2
