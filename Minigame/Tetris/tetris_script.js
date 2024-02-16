@@ -686,7 +686,8 @@ function draw(){
 
   //list_draw();
   
-
+  //Timeを設定
+  T_one_base = 0.5/(delete_line_num+1);
   
   
   //mino_move();
