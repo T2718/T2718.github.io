@@ -33,7 +33,7 @@ let on_time = 0.5;
 let srs = {T:[[0,0]],I:[[0,0]],L:[[0,0]],J:[[0,0]],S:[[0,0]],Z:[[0,0]]};
 let delete_line_num = 0;
 let next_mino_list = [];
-let T_one_multi = 4;
+let T_one_multi = 20;
 let hold = '';
 let hold_list = {};
 let hold_tf = false;
@@ -48,6 +48,9 @@ let prey1 = 0;
 let now_x = 0;
 let move_x = false;
 let hold_tf_first = true;
+let hard_all_tf = true;
+let on_time_base = 0.5;
+
 
 
 function next_in(){
@@ -605,6 +608,7 @@ function put_tf(){
   } else if(new Date().getTime()-time_middle <= 1000*on_time){
     return false;
   }
+  on_time = on_time_base;
   return true;
 }
 
@@ -748,6 +752,42 @@ function draw(){
   mino_draw();
 
   //Time_end = new Date().getTime();
+  if(touch2.y[0] - touch1.y[0] >= 80 && hard_all_tf){
+    if(new Date().getTime()-touch1.time <= 500){
+      let hard_tf = true;
+      let hard_y = 0;
+      let hard_y_k = 0;
+
+      while(hard_tf){
+
+
+        for (let k = 0;k < 4; k++){
+          if(Amino.list[k][1] - hard_y-2 < 0 || Amino.list[k][1] - hard_y-2 >= floor1.length){
+            hard_tf = false;
+            if(hard_y_k < hard_y) hard_y_k = hard_y-1;
+
+          } else if(floor1[Amino.list[k][1] - hard_y-2][Amino.list[k][0]] != 0){
+            hard_tf = false;
+            if(hard_y_k < hard_y) hard_y_k = hard_y-1;
+
+
+          }
+
+
+        }
+        hard_y += 1;
+
+      }
+      Amino.y -= hard_y_k;
+      //alert(hard_y_k);
+      on_time = 0;
+
+      hard_all_tf = false;
+    }
+
+
+  }
+
   hold_tf_first = false;
   if(touch2.y[0]-touch1.y[0] >= 70){
     //console.log(touch1.y[0]);
@@ -771,13 +811,15 @@ function draw(){
 function touchStarted(){
   Time_run = true;
   touch_tf = true;
-  touch1 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y)};
+  touch1 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y),time:new Date().getTime()};
   touch2 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y)};
   n1 = 0
   prex1 = Amino.x;
   prey1 = Amino.y;
   //text1 = prex1;
 }
+
+
 
 function touchMoved(){
   touch_tf = false;
@@ -788,51 +830,68 @@ function touchMoved(){
   
   //text1 = [];
   touch2 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y)};
-  for (let k = 0; k < Amino.list.length; k ++){
-    k_x = prex1+Amino.list_base[k][0] + Math.floor(2.5*width_n1*(touch2.x[0]-touch1.x[0])/width);
-    k_y = Amino.list[k][1];
-    //text1.push(k_x);
-    if((-1 >= k_x || k_x >= width_n1)){
-      k_tf = false;
-      //console.log(1);
 
+
+
+
+  
+
+  //横移動
+  if((touch2.y[0]-touch1.y[0]) != 0){
+    if(hard_all_tf && Math.abs((touch2.x[0]-touch1.x[0])/(touch2.y[0]-touch1.y[0])) >= 1){
+
+      k_x_base = 2.5*width_n1*(Math.sign(touch2.x[0]-touch1.x[0])*(Math.abs(Math.abs(touch2.x[0]-touch1.x[0])-10)))/width;
+
+      for (let k = 0; k < Amino.list.length; k ++){
+        k_x = prex1+Amino.list_base[k][0] + Math.floor(k_x_base);
+        k_y = Amino.list[k][1];
+        //text1.push(k_x);
+        if((-1 >= k_x || k_x >= width_n1)){
+          k_tf = false;
+          //console.log(1);
+
+        }
+
+        /*if(Math.abs(k_x-Amino.list[k][0])>1){
+          k_tf = false;
+          console.log(2);
+
+        }*/
+        //k_y-2から
+        if(floor1.length+1 < k_y || k_y<2){
+          k_tf = false;
+          //console.log(3);
+
+          continue
+
+        }
+
+
+
+
+        if(floor1[k_y-2][k_x] != 0){
+          k_tf = false;
+          //console.log(4)
+
+        }
+
+      }
+      //console.log(k_tf)
+      if(k_tf) Amino.x = prex1 + Math.floor(k_x_base);
+      //text1 = 
+      move_x = (Amino.x != now_x);
+      if(move_x){
+        wait_put -= 1;
+      }
     }
-   
-    /*if(Math.abs(k_x-Amino.list[k][0])>1){
-      k_tf = false;
-      console.log(2);
-
-    }*/
-    //k_y-2から
-    if(floor1.length+1 < k_y){
-      k_tf = false;
-      //console.log(3);
-
-      continue
-
-    }
-
-
-    
-
-    if(floor1[k_y-2][k_x] != 0){
-      k_tf = false;
-      //console.log(4)
-
-    }
-
   }
-  console.log(k_tf)
-  if(k_tf) Amino.x = prex1 + Math.floor(2.5*width_n1*(touch2.x[0]-touch1.x[0])/width);
-  //text1 = 
-  move_x = (Amino.x != now_x);
-  if(move_x){
-    wait_put -= 1;
-  }
+  
 }
 
 end = true;
 function touchEnded(){
+  hard_all_tf = true;
+
   touch2 = {x:touches.map((k)=>k.x),y:touches.map((k)=>k.y)};
   if(touch_tf){
     //put_tf1 = true;
