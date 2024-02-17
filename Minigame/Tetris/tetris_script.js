@@ -50,6 +50,7 @@ let move_x = false;
 let hold_tf_first = true;
 let hard_all_tf = true;
 let on_time_base = 0.5;
+const side_v = 3.2;
 
 
 
@@ -752,8 +753,8 @@ function draw(){
   mino_draw();
 
   //Time_end = new Date().getTime();
-  if(touch2.y[0] - touch1.y[0] >= 80 && hard_all_tf){
-    if(new Date().getTime()-touch1.time <= 500){
+  if(touch2.y[0] - touch1.y[0] >= 120 && hard_all_tf){
+    if(new Date().getTime()-touch1.time <= 150){
       let hard_tf = true;
       let hard_y = 0;
       let hard_y_k = 0;
@@ -792,7 +793,7 @@ function draw(){
   if(touch2.y[0]-touch1.y[0] >= 70){
     //console.log(touch1.y[0]);
     T_one *= 1/T_one_multi;
-  } else if(touch1.y[0]-touch2.y[0] >= 100){
+  } else if(touch1.y[0]-touch2.y[0] >= 80){
     hold_func();
   }
   if(Timer > fr*T_one && put_tf()){
@@ -840,7 +841,27 @@ function touchMoved(){
   if((touch2.y[0]-touch1.y[0]) != 0){
     if(hard_all_tf && Math.abs((touch2.x[0]-touch1.x[0])/(touch2.y[0]-touch1.y[0])) >= 1){
 
-      k_x_base = 2.5*width_n1*(Math.sign(touch2.x[0]-touch1.x[0])*(Math.abs(Math.abs(touch2.x[0]-touch1.x[0])-10)))/width;
+      
+      k_x_base = (
+        side_v*width_n1*(
+          Math.sign(
+            touch2.x[0]-touch1.x[0]
+          )*(
+            Math.sign(
+               Math.abs(
+                 Math.abs(
+                   touch2.x[0]-touch1.x[0]
+                 )-10
+               )
+            )+1
+          )/2*(
+            Math.abs(
+              Math.abs(
+                touch2.x[0]-touch1.x[0])
+              -10)
+            )
+          )/width
+        );
 
       for (let k = 0; k < Amino.list.length; k ++){
         k_x = prex1+Amino.list_base[k][0] + Math.floor(k_x_base);
