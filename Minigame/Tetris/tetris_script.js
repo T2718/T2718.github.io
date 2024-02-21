@@ -729,6 +729,7 @@ function hold_mino_draw(){
 //HardDrop
 function hard_func(){
   if(hard_tf) return;
+  if(state != 'fall') return;
   for(let k1 = 0; true; k1++){
     for(let k = 0; k < Amino.list_base.length; k++){
       if(Amino.y + Amino.list_base[k][1] - k1 <= 0){
