@@ -823,8 +823,8 @@ function draw_main() {
   //TechTextを描画
   tech_text_draw();
   //開発用のText
-  develop_text = tspin_rotate_tf;
-  develop_text_draw();
+  /*develop_text = tspin_rotate_tf;
+  develop_text_draw();*/
   //盤面のミノを表示
   mino_all_draw()
   //Holdミノを表示
