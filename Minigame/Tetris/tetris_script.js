@@ -431,10 +431,10 @@ function tspin_func(){
 function put_func(){
   hold_tf = false;
   hold_first_tf = false;
+  tspin_func();
   for(let k = 0; k < Amino.list.length; k++){
     field_all[Amino.list[k][1]][Amino.list[k][0]] = Amino.color;
   }
-  tspin_func();
   state = 'first';
 }
 
