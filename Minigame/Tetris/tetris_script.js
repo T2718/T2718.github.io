@@ -15,6 +15,8 @@ let field = [];
 let field_all = [];
 
 let Amino = {};
+let T_change_x = 0;
+let T_change_y = 0;
 
 let state = 'start';
 let mino_list = [];
@@ -621,6 +623,8 @@ function rotation_func(change_dir) {
   }
   if (srs_count != -1) {
     Amino.list_base = list_base_k.concat();
+    T_change_x = srs_list_k[srs_count][0];
+    T_change_y = srs_list_k[srs_count][1];
     Amino.x += srs_list_k[srs_count][0];
     Amino.y += srs_list_k[srs_count][1];
     Amino.dir = dir_k;
