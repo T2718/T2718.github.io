@@ -406,6 +406,9 @@ function tspin_func() {
   } else {
     tspin_list_string_k += '[-1,1][1,1]';
   }
+  if (Amino.y - 1 < 0){
+    tspin_list_string_k += '[-1,-1][-1,1]';
+  }
 
 
 
@@ -416,17 +419,7 @@ function tspin_func() {
 
 
   tech_text = 'T-Spin ';
-  if (Amino.dir == 'N') {
-    if (tspin_list_string_k.indexOf('[1,-1]') == -1 || tspin_list_string_k.indexOf('[1,1]') == -1) tech_text += 'Mini';
-  } else if (Amino.dir == 'E') {
-    if (tspin_list_string_k.indexOf('[1,1]') == -1 || tspin_list_string_k.indexOf('[-1,1]') == -1) tech_text += 'Mini';
-  } else if (Amino.dir == 'S') {
-    if (tspin_list_string_k.indexOf('[-1,1]') == -1 || tspin_list_string_k.indexOf('[-1,-1]') == -1) tech_text += 'Mini';
-  } else if (Amino.dir == 'W') {
-    if (tspin_list_string_k.indexOf('[-1,-1]') == -1 || tspin_list_string_k.indexOf('[1,-1]') == -1) tech_text += 'Mini';
-  } else {
-    console.error('tspin_func:dirが存在しません。');
-  }
+  
 
   if (delete_num_k == 1) {
     tech_text += '\nSingle';
@@ -435,9 +428,26 @@ function tspin_func() {
   } else if (delete_num_k == 3) {
     tech_text += '\nTriple';
   }
+
+  //Mini判定
+  if (delete_num_k >= 1){
+    if (Amino.dir == 'N') {
+      if (tspin_list_string_k.indexOf('[1,-1]') == -1 || tspin_list_string_k.indexOf('[1,1]') == -1) tech_text += 'Mini';
+    } else if (Amino.dir == 'E') {
+      if (tspin_list_string_k.indexOf('[1,1]') == -1 || tspin_list_string_k.indexOf('[-1,1]') == -1) tech_text += 'Mini';
+    } else if (Amino.dir == 'S') {
+      if (tspin_list_string_k.indexOf('[-1,1]') == -1 || tspin_list_string_k.indexOf('[-1,-1]') == -1) tech_text += 'Mini';
+    } else if (Amino.dir == 'W') {
+      if (tspin_list_string_k.indexOf('[-1,-1]') == -1 || tspin_list_string_k.indexOf('[1,-1]') == -1) tech_text += 'Mini';
+    } else {
+      console.error('tspin_func:dirが存在しません。');
+    }
+  }
+  
   tech_timer = new Date().getTime();
 }
 
+  
 
 
 
