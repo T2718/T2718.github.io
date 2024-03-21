@@ -432,7 +432,7 @@ function tspin_func() {
   }
 
   //Mini判定
-  if (delete_num_k >= 1){
+  if (delete_num_k >= 1 && (Math.abs(T_change_x)) <= 1 && (Math.abs(T_change_y)) <= 1){
     if (Amino.dir == 'N') {
       if (tspin_list_string_k.indexOf('[1,-1]') == -1 || tspin_list_string_k.indexOf('[1,1]') == -1) tech_text += 'Mini';
     } else if (Amino.dir == 'E') {
