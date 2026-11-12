@@ -58,7 +58,7 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-cols: repeat(auto-fill, minmax(320px, 1fr));
       gap: 20px;
     }
     .card {
@@ -132,20 +132,19 @@
 </div>
 
 <script>
-  // Enterキーでも検索できるようにする
   document.getElementById("tagInput").addEventListener("keypress", function(e) {
     if (e.key === "Enter") searchImages();
   });
 
   async function searchImages() {
+    const statusText = document.getElementById("statusText");
+    const grid = document.getElementById("resultsGrid");
+
     try {
       const rawTags = document.getElementById("tagInput").value.trim();
       const rating = document.getElementById("ratingSelect").value;
       const limit = document.getElementById("limitSelect").value;
-      const statusText = document.getElementById("statusText");
-      const grid = document.getElementById("resultsGrid");
 
-      // タグと年齢制限フィルターを結合（無料APIは最大2タグまで検索可能）
       let queryTags = rawTags;
       if (rating) {
         queryTags = queryTags ? `${queryTags} ${rating}` : rating;
@@ -154,52 +153,47 @@
       statusText.textContent = "検索中...";
       grid.innerHTML = "";
 
-      const url = `https://donmai.us{encodeURIComponent(queryTags)}&limit=${limit}`;
+      // CORSプロキシを使用してDanbooru APIへアクセス
+      const targetUrl = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(queryTags)}&limit=${limit}`;
+      const url = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`APIエラー (${response.status}): 無料枠ではタグは最大2つまでしか同時指定できません。`);
-        }
-
-        const posts = await response.json();
-        const validPosts = posts.filter(p => p.file_url);
-
-        if (validPosts.length === 0) {
-          statusText.textContent = "該当する画像が見つかりませんでした。";
-          return;
-        }
-
-        statusText.textContent = `${validPosts.length} 件の画像を取得しました（画像クリックで原寸表示）`;
-
-        validPosts.forEach(post => {
-          // タグをAIプロンプト形式（カンマ区切り・アンダースコア削除）に変換
-          const charTags = post.tag_string_character ? post.tag_string_character.replace(/_/g, " ").split(" ").join(", ") : "";
-          const genTags = post.tag_string_general ? post.tag_string_general.replace(/_/g, " ").split(" ").join(", ") : "";
-          const fullPrompt = [charTags, genTags].filter(Boolean).join(", ");
-
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <a href="${post.file_url}" target="_blank">
-              <img src="${post.large_file_url || post.file_url}" loading="lazy" alt="AI Prompt Reference">
-            </a>
-            <div class="card-body">
-              <textarea class="prompt-area" readonly>${fullPrompt}</textarea>
-              <button class="copy-btn" onclick="copyPrompt(this)">プロンプトをコピー</button>
-            </div>
-          `;
-          grid.appendChild(card);
-        });
-
-      } catch (err) {
-        statusText.textContent = error.message;
-        statusText.textContent += error;
-        console.error(error);
-        throw error;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`APIエラー (${response.status}): サーバーへの接続に失敗しました。`);
       }
+
+      const posts = await response.json();
+      const validPosts = posts.filter(p => p.file_url);
+
+      if (validPosts.length === 0) {
+        statusText.textContent = "該当する画像が見つかりませんでした。";
+        return;
+      }
+
+      statusText.textContent = `${validPosts.length} 件の画像を取得しました（画像クリックで原寸表示）`;
+
+      validPosts.forEach(post => {
+        const charTags = post.tag_string_character ? post.tag_string_character.replace(/_/g, " ").split(" ").join(", ") : "";
+        const genTags = post.tag_string_general ? post.tag_string_general.replace(/_/g, " ").split(" ").join(", ") : "";
+        const fullPrompt = [charTags, genTags].filter(Boolean).join(", ");
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <a href="${post.file_url}" target="_blank">
+            <img src="${post.large_file_url || post.file_url}" loading="lazy" alt="AI Prompt Reference">
+          </a>
+          <div class="card-body">
+            <textarea class="prompt-area" readonly>${fullPrompt}</textarea>
+            <button class="copy-btn" onclick="copyPrompt(this)">プロンプトをコピー</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
     } catch (err) {
-      alert('Error: '+err);
+      statusText.textContent = "エラーが発生しました: " + err.message;
+      console.error(err);
     }
   }
 
