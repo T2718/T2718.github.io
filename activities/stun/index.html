@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC P2P 直接通信テスト（クレカ・サーバー不要版）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 720px;
+      margin: 24px auto;
+      padding: 0 16px;
+      background-color: #f8f9fa;
+      color: #212529;
+      line-height: 1.5;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    .card {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .step-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #0d6efd;
+    }
+    textarea {
+      width: 100%;
+      height: 85px;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+    button:hover { background-color: #0b5ed7; }
+    button:disabled { background-color: #6c757d; cursor: not-allowed; }
+    button.secondary { background-color: #198754; }
+    button.secondary:hover { background-color: #157347; }
+    #status {
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 4px;
+      background: #e9ecef;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .connected { background: #d1e7dd !important; color: #0f5132; }
+    #chatLog {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ced4da;
+      padding: 10px;
+      background: #fafafa;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .msg-me { color: #0d6efd; margin-bottom: 4px; }
+    .msg-peer { color: #198754; margin-bottom: 4px; }
+    .msg-sys { color: #6c757d; font-size: 12px; margin-bottom: 4px; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>WebRTC P2P 1対1通信（無料STUNサーバー版）</h1>
+  <div id="status">ステータス: 未接続</div>
+
+  <!-- ステップ1: ホスト側（発信者） -->
+  <div class="card">
+    <div class="step-title">【ホスト側（最初に接続を作る人）】</div>
+    <p style="font-size: 13px; margin: 4px 0;">1. 「招待コードを作成」を押し、生成された文字列を相手に送ります。</p>
+    <button id="createOfferBtn">1. 招待コード（Offer）を作成</button>
+    <textarea id="offerOutput" readonly placeholder="ここに招待コードが生成されます..."></textarea>
+
+    <p style="font-size: 13px; margin: 12px 0 4px;">3. 相手から返ってきた「応答コード（Answer）」を下に貼り付けて接続します。</p>
+    <textarea id="answerInput" placeholder="相手から送られた応答コードを貼り付け..."></textarea>
+    <button id="acceptAnswerBtn" class="secondary">3. 応答コードを読み込んで接続完了</button>
+  </div>
+
+  <!-- ステップ2: ゲスト側（受信者） -->
+  <div class="card">
+    <div class="step-title">【ゲスト側（招待を受け取る人）】</div>
+    <p style="font-size: 13px; margin: 4px 0;">2. ホストから送られた「招待コード」を貼り付け、「応答コードを作成」を押して結果をホストに返します。</p>
+    <textarea id="offerInput" placeholder="ホストの招待コードを貼り付け..."></textarea>
+    <button id="createAnswerBtn">2. 応答コード（Answer）を作成</button>
+    <textarea id="answerOutput" readonly placeholder="ここに生成された応答コードをホストに送り返してください..."></textarea>
+  </div>
+
+  <!-- チャット・データ送受信エリア -->
+  <div class="card">
+    <div class="step-title">P2P リアルタイムチャット（サーバー経由なし）</div>
+    <div id="chatLog"></div>
+    <div class="chat-input-row">
+      <input type="text" id="msgInput" placeholder="接続後にメッセージを入力..." disabled>
+      <button id="sendBtn" disabled>送信</button>
+    </div>
+  </div>
+
+  <script>
+    // クレジットカード不要の無料STUNサーバー設定
+    const rtcConfig = {
+      iceServers: [
+        { urls: 'stun:stun.cloudflare.com:3478' },
+        { urls: 'stun:stun.l.google.com:19302' }
+      ]
+    };
+
+    let pc = null;
+    let dataChannel = null;
+
+    const statusEl = document.getElementById('status');
+    const chatLog = document.getElementById('chatLog');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function logSystem(text) {
+      const div = document.createElement('div');
+      div.className = 'msg-sys';
+      div.textContent = `[システム] ${text}`;
+      chatLog.appendChild(div);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function logMessage(sender, text, isMe) {
+      const div = document.createElement('div');
+      div.className = isMe ? 'msg-me' : 'msg-peer';
+      div.textContent = `${sender}: ${text}`;
+      chatLog.appendChild(div);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function setupDataChannel(channel) {
+      channel.onopen = () => {
+        statusEl.textContent = 'ステータス: P2P接続完了！';
+        statusEl.classList.add('connected');
+        msgInput.disabled = false;
+        sendBtn.disabled = false;
+        logSystem('相手と直接つながりました。メッセージを送れます。');
+      };
+      channel.onclose = () => {
+        statusEl.textContent = 'ステータス: 切断されました';
+        statusEl.classList.remove('connected');
+        msgInput.disabled = true;
+        sendBtn.disabled = true;
+        logSystem('通信が切断されました。');
+      };
+      channel.onmessage = (e) => {
+        logMessage('相手', e.data, false);
+      };
+    }
+
+    function initPeerConnection() {
+      pc = new RTCPeerConnection(rtcConfig);
+
+      pc.oniceconnectionstatechange = () => {
+        statusEl.textContent = `ステータス: ${pc.iceConnectionState}`;
+      };
+
+      // ゲスト側がDataChannelを受け取る処理
+      pc.ondatachannel = (event) => {
+        dataChannel = event.channel;
+        setupDataChannel(dataChannel);
+      };
+    }
+
+    // ICE候補の収集が完了するまで待つヘルパー（コピペ1回で済ませるため）
+    function waitForIceGathering(peerConnection) {
+      return new Promise((resolve) => {
+        if (peerConnection.iceGatheringState === 'complete') {
+          resolve();
+        } else {
+          const checkState = () => {
+            if (peerConnection.iceGatheringState === 'complete') {
+              peerConnection.removeEventListener('icegatheringstatechange', checkState);
+              resolve();
+            }
+          };
+          peerConnection.addEventListener('icegatheringstatechange', checkState);
+          // 念のため3秒でタイムアウトして現在収集済みの情報で進める
+          setTimeout(resolve, 3000);
+        }
+      });
+    }
+
+    // 1. ホスト側：Offer作成
+    document.getElementById('createOfferBtn').onclick = async () => {
+      initPeerConnection();
+      dataChannel = pc.createDataChannel('p2p-chat');
+      setupDataChannel(dataChannel);
+
+      logSystem('招待コードを生成中（STUNサーバーからIPを取得しています）...');
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await waitForIceGathering(pc);
+
+      document.getElementById('offerOutput').value = JSON.stringify(pc.localDescription);
+      logSystem('招待コードが生成されました。コピーして相手に送ってください。');
+    };
+
+    // 2. ゲスト側：Offerを受け取ってAnswer作成
+    document.getElementById('createAnswerBtn').onclick = async () => {
+      const offerText = document.getElementById('offerInput').value.trim();
+      if (!offerText) return alert('ホストの招待コードを貼り付けてください');
+
+      initPeerConnection();
+      logSystem('応答コードを生成中...');
+      const offer = JSON.parse(offerText);
+      await pc.setRemoteDescription(offer);
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await waitForIceGathering(pc);
+
+      document.getElementById('answerOutput').value = JSON.stringify(pc.localDescription);
+      logSystem('応答コードが生成されました。ホストに送り返してください。');
+    };
+
+    // 3. ホスト側：Answerを受け取って接続確立
+    document.getElementById('acceptAnswerBtn').onclick = async () => {
+      const answerText = document.getElementById('answerInput').value.trim();
+      if (!answerText) return alert('相手の応答コードを貼り付けてください');
+
+      const answer = JSON.parse(answerText);
+      await pc.setRemoteDescription(answer);
+      logSystem('応答コードを読み込みました。接続を確立しています...');
+    };
+
+    // メッセージ送信
+    function sendMessage() {
+      const text = msgInput.value.trim();
+      if (!text || !dataChannel || dataChannel.readyState !== 'open') return;
+      dataChannel.send(text);
+      logMessage('自分', text, true);
+      msgInput.value = '';
+    }
+
+    sendBtn.onclick = sendMessage;
+    msgInput.onkeypress = (e) => {
+      if (e.key === 'Enter') sendMessage();
+    };
+  </script>
+</body>
+</html>
