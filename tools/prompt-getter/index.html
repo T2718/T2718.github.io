@@ -155,8 +155,8 @@
 
       // CORSプロキシを使用してDanbooru APIへアクセス
       const targetUrl = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(queryTags)}&limit=${limit}`;
-      const url = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
-
+      const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
+      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`APIエラー (${response.status}): サーバーへの接続に失敗しました。`);
